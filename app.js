@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const cors = require('cors');
 
+const userRoutes = require('./routes/user')
+
 const dotenv = require("dotenv"); 
 dotenv.config();
 
@@ -28,5 +30,6 @@ app.use(helmet({
 
 app.use(cors())
 
+app.use('/api/auth', userRoutes)
 
 module.exports = app;
