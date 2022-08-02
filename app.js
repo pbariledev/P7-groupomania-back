@@ -30,6 +30,8 @@ app.use(helmet({
 
 app.use(cors())
 
+app.use(express.json());
+
 app.use('/api/auth', userRoutes)
 
 module.exports = app;
