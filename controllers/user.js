@@ -9,12 +9,11 @@ dotenv.config();
 
 // Regex de validation
 const emailRegex =  /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const passwordRegex =/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+const passwordRegex =/^([a-zA-Z0-9]{6,20})$/;
 
 
 //creation d'un user
 exports.signup = (req, res, next) => {
-    
     //Si l'adresse mail ne respect pas la forme 
     if (!emailRegex.test(req.body.email)) {
         //Alors un message d'erreur apparait
@@ -22,7 +21,7 @@ exports.signup = (req, res, next) => {
         }
     //Si le mot de passe ne respect pas les Regex 
     if (!passwordRegex.test(req.body.password)) {
-        return res.status(400).json({error:"Le mot de passe doit contenir entre 8 et 20 caractères dont au moins une lettre majuscule, une lettre minusucle, un chiffre et un symbole",});
+        return res.status(400).json({error:"Le mot de passe doit contenir entre 6 et 20 caractères",});
         }
     //vérification user existant
     console.log(req)
@@ -43,7 +42,7 @@ exports.signup = (req, res, next) => {
 
          });
          userToCreate.save()
-             .then(() =>  res.status(201).json({ message: 'Utilisateur créé !' }))
+             .then(() =>  res.status(201).json({message: "utilisateur créé"}))
              .catch(error => res.status(400).json({ error }));
      })
      .catch(error => res.status(500).json({ error }));
@@ -57,7 +56,7 @@ exports.signup = (req, res, next) => {
     User.findOne({email: req.body.email})
     .then (user => {
         if (!user) {
-         return res.status(401).json({error: 'utilisateur non trouvé !'})
+         return res.status(401).json({error: 'Email non trouvé !'})
         } else {
             //Comparaison du mots de passe et du hash en BDD
             bcrypt.compare(req.body.password, user.password)
@@ -98,3 +97,18 @@ exports.UserProfile = (req, res, next) => {
         res.status(404).json({ error: "Une erreur s'est produite !" })}
       );
   };
+
+  exports.UserModify = (req, res, next) => {
+    const user = (req.body);
+    const userId = req.params.userId;
+    console.log(userId + " " + user);
+    User.updateOne(userId, user)
+    .then(() => res.status(200).json({ message: 'Utilisateur modifié !'}))
+    .catch(error => res.status(404).json({ error }));
+  }
+
+  exports.deleteUser = (req, res) => {
+    User.deleteOne(req.params.userId)
+        .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
+        .catch(error => res.status(404).json ({ error }));
+};
