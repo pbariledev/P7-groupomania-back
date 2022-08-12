@@ -5,6 +5,7 @@ const error = require ('../middleware/errormessage')
 
 
 const dotenv = require("dotenv");
+const user = require('../models/user');
 dotenv.config();
 
 // Regex de validation
@@ -81,12 +82,10 @@ exports.signup = (req, res, next) => {
 };
 
 exports.UserProfile = (req, res, next) => {
-    const id = req.auth.id;
-    User.findOne({
-      attributes: ["id", "username", "email", "isAdmin", "imageProfile"],
-      where: { id: req.auth.id },
-    })
-      .then((user) => {
+    const user = (req.body);
+    const userId = req.params.userId;
+  User.findOne({_id: userId})
+        .then((user) => {
         if (user) {
           res.status(200).json(user);
         } else {
