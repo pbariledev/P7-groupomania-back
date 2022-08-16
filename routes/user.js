@@ -7,8 +7,8 @@ router.post('/signup',userCtrl.signup);
 router.post('/login',userCtrl.login);
 
 router.get('/myprofil/:userId',auth ,userCtrl.UserProfile) 
-router.put('/myprofil',auth ,userCtrl.UserModify)
-router.delete('/myprofil', auth, userCtrl.deleteUser)
+router.put('/myprofil/:userId', userCtrl.UserModify)
+router.delete('/myprofil/:userId', auth, userCtrl.deleteUser)
 
 
 module.exports = router;

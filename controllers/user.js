@@ -97,17 +97,21 @@ exports.UserProfile = (req, res, next) => {
       );
   };
 
-  exports.UserModify = (req, res, next) => {
-    const user = (req.body);
+exports.UserModify = (req, res) => {
     const userId = req.params.userId;
-    console.log(userId + " " + user);
-    User.updateOne(userId, user)
-    .then(() => res.status(200).json({ message: 'Utilisateur modifié !'}))
-    .catch(error => res.status(404).json({ error }));
-  }
+    const newUserName= req.body.userName;
+    console.log({userId})
+    console.log({newUserName})
+    User.updateOne( {_id: userId}, {$set:{userName: req.body.userName}} )
+        .then(() => res.status(200).json({ message: 'Utilisateur modifié' }))
+        .catch((error) => {console.log(error);
+            res.status(400).json({ message: 'Impossible de modifier '})}
+        );
+}
 
   exports.deleteUser = (req, res) => {
-    User.deleteOne(req.params.userId)
+    const userId = req.params.userId;
+    User.deleteOne({_id: userId})
         .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
         .catch(error => res.status(404).json ({ error }));
 };
