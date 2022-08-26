@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const error = require ('../middleware/errormessage')
 
-
 const dotenv = require("dotenv");
 const user = require('../models/user');
 dotenv.config();
@@ -11,7 +10,7 @@ dotenv.config();
 // Regex de validation
 const emailRegex =  /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const passwordRegex =/^([a-zA-Z0-9]{6,20})$/;
-
+const ProfilPictureDefault = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
 
 //creation d'un user
 exports.signup = (req, res, next) => {
@@ -35,7 +34,7 @@ exports.signup = (req, res, next) => {
          .then((hash) => {
         //creation du user dans la BDD avec photo
         const userToCreate = new User({
-            imageUrl: req.body.imageUrl,
+            imageUrl: ProfilPictureDefault,
             userName: req.body.userName,
             email: req.body.email,
             password: hash,
@@ -101,12 +100,25 @@ exports.UserModify = (req, res) => {
     const userId = req.params.userId;
     const newUserName= req.body.userName;
     const newEmail= req.body.email;
+    
     User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail}} )
         .then(() => res.status(200).json({ message: 'Utilisateur modifié' }))
         .catch((error) => {console.log(error);
             res.status(400).json({ message: 'Impossible de modifier '})}
         );
 }
+exports.UserPicModify = (req, res, next) => {
+    const userId = req.params.userId;
+    const imageUrlObject = req.file ? {
+        ...JSON.parse(req.params.userId),
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    } : { ...req.body };
+     delete imageUrlObject._userId;
+        User.updateOne({ _id: req.params.id}, { ...imageUrlObject, _id: req.params.id})
+            .then(() => res.status(200).json({message : 'photo modifiée!'}))
+            .catch(error => res.status(401).json({ message : 'photo non modifiée!' }));
+  };
+  
 
   exports.deleteUser = (req, res) => {
     const userId = req.params.userId;
