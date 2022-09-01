@@ -100,25 +100,14 @@ exports.UserModify = (req, res) => {
     const userId = req.params.userId;
     const newUserName= req.body.userName;
     const newEmail= req.body.email;
-    
-    User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail}} )
+    const imageUrl = req.body.image;
+
+    User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail, imageUrl:imageUrl}} )
         .then(() => res.status(200).json({ message: 'Utilisateur modifié' }))
         .catch((error) => {console.log(error);
             res.status(400).json({ message: 'Impossible de modifier '})}
         );
 }
-exports.UserPicModify = (req, res, next) => {
-    const userId = req.params.userId;
-    const imageUrlObject = req.file ? {
-        ...JSON.parse(req.params.userId),
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : { ...req.body };
-     delete imageUrlObject._userId;
-        User.updateOne({ _id: req.params.id}, { ...imageUrlObject, _id: req.params.id})
-            .then(() => res.status(200).json({message : 'photo modifiée!'}))
-            .catch(error => res.status(401).json({ message : 'photo non modifiée!' }));
-  };
-  
 
   exports.deleteUser = (req, res) => {
     const userId = req.params.userId;
