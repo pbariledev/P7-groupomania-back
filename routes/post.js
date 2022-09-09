@@ -9,7 +9,7 @@ const postCtrl = require('../controllers/post');
 
 router.post('/', postCtrl.createPost);
 router.get('/', postCtrl.getAllPost);
-router.get('/:_id', postCtrl.getOnePost);
+router.put('/', postCtrl.likePost);
 
 
 

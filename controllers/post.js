@@ -25,9 +25,21 @@ exports.getAllPost =(req, res, next) => {
   .catch(error => res.status(400).json({error}));
 };
 
-exports.getOnePost = (req,res,next) => {
-  Post.findOne({_id: req.params.id})
-  .then( post => res.status(200).json(post))
-  .catch(error => res.status(404).json({error}));
-};
-
+exports.likePost = (req, res, next) => {
+  const userId =  (req.body.userId)
+  const idPost =  (req.body.idPost)
+  console.log(userId)
+  Post.findOne({ _id: idPost })
+    .then(post => {
+      if (post.usersLiked.includes(userId)) {
+        Post.updateOne( {_id:idPost}, { $pull: { usersLiked: userId }, $inc: { likes: -1 } })
+          .then(() => res.status(200).json({ message: 'Like supprimé !'}))
+          .catch(error => res.status(400).json({ error }))
+      }else {  
+        Post.updateOne( {_id:idPost}, { $push: { usersLiked: userId }, $inc: { likes: +1 } })
+          .then(() => res.status(200).json({ message: 'Vous aimez ce post !'}))
+          .catch(error => res.status(400).json({ error }));
+      }
+    })
+    .catch(error => res.status(400).json({ error }));
+}

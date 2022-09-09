@@ -100,7 +100,7 @@ exports.UserModify = (req, res) => {
     const newUserName= req.body.userName;
     const newEmail= req.body.email;
 
-    User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail, imageUrl:newImage}} )
+    User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail,}} )
         .then(() => res.status(200).json({ message: 'Utilisateur modifié' }))
         .catch((error) => {console.log(error);
             res.status(400).json({ message: 'Impossible de modifier '})}
