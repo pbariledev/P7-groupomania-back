@@ -34,7 +34,7 @@ exports.signup = (req, res, next) => {
          .then((hash) => {
         //creation du user dans la BDD avec photo
         const userToCreate = new User({
-            imageUrl: ProfilPictureDefault,
+            imageUrl: req.body.imageUrl,
             userName: req.body.userName,
             email: req.body.email,
             password: hash,
@@ -81,7 +81,6 @@ exports.signup = (req, res, next) => {
 };
 
 exports.UserProfile = (req, res, next) => {
-    const user = (req.body);
     const userId = req.params.userId;
   User.findOne({_id: userId})
         .then((user) => {
@@ -100,9 +99,8 @@ exports.UserModify = (req, res) => {
     const userId = req.params.userId;
     const newUserName= req.body.userName;
     const newEmail= req.body.email;
-    const imageUrl = req.body.image;
 
-    User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail, imageUrl:imageUrl}} )
+    User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail, imageUrl:newImage}} )
         .then(() => res.status(200).json({ message: 'Utilisateur modifié' }))
         .catch((error) => {console.log(error);
             res.status(400).json({ message: 'Impossible de modifier '})}
