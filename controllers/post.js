@@ -28,7 +28,6 @@ exports.getAllPost =(req, res, next) => {
 exports.likePost = (req, res, next) => {
   const userId =  (req.body.userId)
   const idPost =  (req.body.idPost)
-  console.log(userId)
   Post.findOne({ _id: idPost })
     .then(post => {
       if (post.usersLiked.includes(userId)) {
