@@ -1,14 +1,18 @@
 const Post = require('../models/Post');
+var ObjectId = require ('mongodb').ObjectId;
 
 exports.createPost = (req, res, next) => {
-  const postObject = (req.body.creatPost_TextZone);
-  const userId =  (req.body.userId)
+  console.log(req.body)
+  const postObject = (req.body.content);
+  const userId = (req.body.userId)
+  const selectedImage = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   const today = new Date();
   function pad2(n) { return n < 10 ? '0' + n : n }
   const timesEdits=pad2( today.getDate()) + '/' + pad2(today.getMonth() + 1) + '/' +today.getFullYear().toString() + ' à ' +   pad2( today.getHours() ) +':' + pad2( today.getMinutes() ) 
   const postNumber= today.getFullYear().toString() + pad2(today.getMonth() + 1) + pad2( today.getDate()) + pad2( today.getHours() ) + pad2( today.getMinutes() ) + pad2( today.getSeconds() ) 
 
   const post = new Post({
+      imageContentUrl: selectedImage,
       content: postObject,
       userId: userId,
       timesEdits : timesEdits,
@@ -20,7 +24,16 @@ exports.createPost = (req, res, next) => {
 };
 
 exports.getAllPost =(req, res, next) => {
-  Post.find().sort({postNumber:-1})
+
+  Post.aggregate([
+    { "$lookup": {
+      "from": "users",
+      "localField": "userId",
+      "foreignField": "_id",
+      "as": "User"
+    }}
+  ]).sort({postNumber:-1})
+
   .then(posts => res.status(200).json(posts))
   .catch(error => res.status(400).json({error}));
 };

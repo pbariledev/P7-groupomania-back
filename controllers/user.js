@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 
 const dotenv = require("dotenv");
-const user = require('../models/user');
 dotenv.config();
 
 // Regex de validation
@@ -95,11 +94,11 @@ exports.UserProfile = (req, res, next) => {
   };
 
 exports.UserModify = (req, res) => {
+    console.log(req.body)
     const userId = req.params.userId;
     const newUserName= req.body.userName;
     const newEmail= req.body.email;
-    const profilPicture = `${req.protocol}://${req.get('host')}/images/${req.body.profilPicture.filename}`
-    console.log(req.body.profilPicture)
+    const profilPicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
 
     User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail, imageUrl:profilPicture }} )
         .then(() => res.status(200).json({ message: 'Utilisateur modifié' }))
