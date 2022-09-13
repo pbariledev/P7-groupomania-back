@@ -38,6 +38,22 @@ exports.getAllPost =(req, res, next) => {
   .catch(error => res.status(400).json({error}));
 };
 
+exports.getOnePost =(req, res, next) => {
+  const idPost = req.params.idPost;
+  Post.findOne({ _id: idPost })
+  .then((post) => {
+    if (post) {
+      res.status(200).json(post);
+    } else {
+      res.status(404).json({ error: "Post non trouvé" });
+    }
+  })
+  .catch((error) =>{console.log(error);
+    res.status(404).json({ error: "Une erreur s'est produite !" })}
+  );
+
+}
+
 exports.likePost = (req, res, next) => {
   const userId =  (req.body.userId)
   const idPost =  (req.body.idPost)
