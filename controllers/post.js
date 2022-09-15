@@ -61,11 +61,15 @@ exports.likePost = (req, res, next) => {
     .then(post => {
       if (post.usersLiked.includes(userId)) {
         Post.updateOne( {_id:idPost}, { $pull: { usersLiked: userId }, $inc: { likes: -1 } })
-          .then(() => res.status(200).json({ message: 'Like supprimé !'}))
+          .then(() => {
+            Post.findOne({ _id: idPost })
+            .then((post)=> res.status(200).json(post))})
           .catch(error => res.status(400).json({ error }))
       }else {  
         Post.updateOne( {_id:idPost}, { $push: { usersLiked: userId }, $inc: { likes: +1 } })
-          .then(() => res.status(200).json({ message: 'Vous aimez ce post !'}))
+          .then(() => {
+            Post.findOne({ _id: idPost })
+            .then((post)=> res.status(200).json(post))})
           .catch(error => res.status(400).json({ error }));
       }
     })

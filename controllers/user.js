@@ -94,7 +94,6 @@ exports.UserProfile = (req, res, next) => {
   };
 
 exports.UserModify = (req, res) => {
-    console.log(req.body)
     const userId = req.params.userId;
     const newUserName= req.body.userName;
     const newEmail= req.body.email;
