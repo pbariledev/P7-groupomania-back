@@ -80,6 +80,7 @@ exports.likePost = (req, res, next) => {
 exports.ModifyOnePost =(req, res, next) => {
   const PostId = req.params.idPost;
   const newContent = (req.body.content);
+  console.log(newContent)
   const newImageContentUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   Post.updateOne( {_id: PostId}, {$set:{content: newContent, imageContentUrl:newImageContentUrl }} )
   .then(() => res.status(200).json({ message: 'post modifié' }))
