@@ -56,8 +56,8 @@ exports.getOnePost =(req, res, next) => {
 }
 
 exports.likePost = (req, res, next) => {
-  const userId =  (req.body.userId)
-  const idPost =  (req.body.idPost)
+  const userId =  req.body.userId
+  const idPost =  req.body.idPost
   Post.findOne({ _id: idPost })
     .then(post => {
       if (post.usersLiked.includes(userId)) {
@@ -79,8 +79,8 @@ exports.likePost = (req, res, next) => {
 
 exports.ModifyOnePost =(req, res, next) => {
   const PostId = req.params.idPost;
-  const newContent = (req.body.content);
-  console.log(newContent)
+  const newContent = req.body.content;
+  console.log(req.body)
   const newImageContentUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
   Post.updateOne( {_id: PostId}, {$set:{content: newContent, imageContentUrl:newImageContentUrl }} )
   .then(() => res.status(200).json({ message: 'post modifié' }))
