@@ -83,7 +83,7 @@ exports.ModifyOnePost =(req, res, next) => {
     :"");
   const postObject = {newContent, newImageContentUrl,};
   
-  if(newImageContentUrl){
+  if(newImageContentUrl !== ""){
     Post.findOne({ _id: PostId })
       .then((post) => {
         const filename = post.image.split("/images/")[1];
