@@ -11,7 +11,7 @@ router.get('/', postCtrl.getAllPost);
 router.get('/:idPost', postCtrl.getOnePost);
 router.put('/:idPost',auth,multerConfig, postCtrl.ModifyOnePost);
 router.put('/',multerConfig, postCtrl.likePost);
-
+router.delete('/:idPost', postCtrl.deleteOnePost);
 
 
 

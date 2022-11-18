@@ -1,4 +1,5 @@
-const Post = require('../models/Post');
+const Post =require('../models/Post');
+const User =require ('../models/user')
 
 exports.createPost = (req, res, next) => {
   console.log(req.body)
@@ -76,31 +77,53 @@ exports.likePost = (req, res, next) => {
 }
 
 exports.ModifyOnePost =(req, res, next) => {
+  const userId =  req.params.userId
+  const idPost = req.params.idPost;
   const PostId = req.params.idPost;
   const newContent = req.body.content; 
   const newImageContentUrl = (req.file ?
     `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     :"");
-  const postObject = {newContent, newImageContentUrl,};
-  
-  if(newImageContentUrl !== ""){
-    Post.findOne({ _id: PostId })
-      .then((post) => {
-        const filename = post.image.split("/images/")[1];
-        fs.unlink(`images/${filename}`, () => {
-          Post.updateOne( {_id: PostId}, {$set:{content: newContent, imageContentUrl: newImageContentUrl}} )
-            .then(() => res.status(200).json({ message: 'post modifié' }))
-            .catch((error) => {console.log(error);
-              res.status(400).json({ message: 'Impossible de modifier '})}
-            );
-        })
+    User.findOne({_id: userId})
+      .then((user) => {
+        Post.findOne({ _id: idPost })
+          .then((post)=>{
+            console.log(post.userId)
+            console.log(_id)
+            if (post.userId !== userId)
+              {res.status(404).json({ error: 'Requête non autorisée' })}
+            else{
+              if(newImageContentUrl !== ""){
+                Post.updateOne( {_id: PostId}, {$set:{content: newContent, imageContentUrl: newImageContentUrl}} )
+                  .then(() => {
+                    Post.findOne({_id: PostId }).then((postModified)=> res.status(200).json(postModified))
+                  })
+                  .catch((error) => {console.log(error);
+                    res.status(400).json({ message: 'Impossible de modifier '})}
+                  );
+              }else{
+                Post.updateOne( {_id: PostId}, {$set:{content: newContent}} )
+                  .then(() => {
+                    Post.findOne({_id: PostId }).then((postModified)=> res.status(200).json(postModified))
+                  })
+                  .catch((error) => {console.log(error);
+                    res.status(400).json({ message: 'Impossible de modifier '})}
+                  );
+              }
+            }
+          })
+          .catch(error => res.status(500).json({
+            error}))
       })
-      .catch((error) => res.status(404).json({ error }));
-  }else{
-    Post.updateOne( {_id: PostId}, {$set:{content: newContent}} )
-    .then(() => res.status(200).json({ message: 'post modifié' }))
-      .catch((error) => {console.log(error);
-        res.status(400).json({ message: 'Impossible de modifier '})}
-      );
-  }
+      .catch(error => res.status(501).json({
+        error: 'Utilisateur non trouvé'
+      }))
+}
+
+exports.deleteOnePost =(req, res, next) =>{
+  const idPost = req.params.idPost;
+  Post.deleteOne({_id: idPost})
+      .then(() => res.status(200).json({ message: 'Post supprimé !'}))
+      .catch(error => res.status(404).json ({ error }));
+
 }
