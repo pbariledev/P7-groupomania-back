@@ -1,7 +1,7 @@
 const User =require ('../models/user')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-
+const fs = require('fs')
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -99,17 +99,34 @@ exports.UserModify = (req, res) => {
     const newUserName= req.body.userName;
     const newEmail= req.body.email;
     const profilPicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-
-    User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail, imageUrl:profilPicture }} )
-        .then(() => res.status(200).json({ message: 'Utilisateur modifié' }))
-        .catch((error) => {console.log(error);
-            res.status(400).json({ message: 'Impossible de modifier '})}
-        );
-}
+    User.findOne({_id: userId})
+    .then(user => {
+        const filenameDelete = user.imageUrl.split("/images/")[1];
+        fs.unlink(`images/${filenameDelete}`, () => {
+            User.updateOne( {_id: userId}, {$set:{userName: newUserName, email:newEmail, imageUrl:profilPicture }} )
+                .then(() => res.status(200).json({ message: 'Utilisateur modifié' }))
+                .catch((error) => {console.log(error);
+                    res.status(400).json({ message: 'Impossible de modifier '})}
+                );
+            })
+    })
+    .catch((error) =>{console.log(error);
+        res.status(500).json({ error: "Une erreur s'est produite !" })}
+      );
+  }
 
   exports.deleteUser = (req, res) => {
     const userId = req.params.userId;
-    User.deleteOne({_id: userId})
-        .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
-        .catch(error => res.status(404).json ({ error }));
+    User.findOne({_id: userId})
+        .then(user => {
+            const filenameDelete = user.imageUrl.split("/images/")[1];
+            fs.unlink(`images/${filenameDelete}`, () => {
+                User.deleteOne({_id: userId})
+                    .then(() => res.status(200).json({ message: 'Utilisateur supprimé !'}))
+                    .catch(error => res.status(404).json ({ error }));
+            })
+        })
+        .catch((error) =>{console.log(error);
+            res.status(500).json({ error: "Une erreur s'est produite !" })}
+        );
 };
