@@ -1,4 +1,5 @@
 const Post = require('../models/Post');
+const User =require ('../models/user')
 const fs = require('fs')
 
 exports.createPost = (req, res, next) => {
@@ -40,6 +41,7 @@ exports.getAllPost =(req, res, next) => {
 
 exports.getOnePost =(req, res, next) => {
   const idPost = req.params.idPost;
+  console.log(idPost)
   Post.findOne({ _id: idPost })
   .then((post) => {
     if (post) {
@@ -76,38 +78,40 @@ exports.likePost = (req, res, next) => {
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.ModifyOnePost =(req, res, next) => {
+exports.ModifyOnePost = async (req, res, next) => {
   const idPost = req.params.idPost;
   const newContent = req.body.content; 
   const newImageContentUrl = (req.file ?
     `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    :"");
+    :"");  
+  const user = await User.findOne({_id: req.auth.userId})
+    console.log(user)
   Post.findOne({ _id: idPost })
-    .then(post => {
-      if(newImageContentUrl !== ""){
-        const filenameDelete = post.imageContentUrl.split("/images/")[1];
-        fs.unlink(`images/${filenameDelete}`, () => {
-          Post.updateOne( {_id: idPost}, {$set:{content: newContent, imageContentUrl: newImageContentUrl}} )
+      .then(post => {
+        if(newImageContentUrl !== ""){
+          const filenameDelete = post.imageContentUrl.split("/images/")[1];
+          fs.unlink(`images/${filenameDelete}`, () => {
+            Post.updateOne( {_id: idPost}, {$set:{content: newContent, imageContentUrl: newImageContentUrl}} )
+              .then(() => {
+                Post.findOne({_id: idPost }).then((postModified)=> res.status(200).json(postModified))
+              })
+              .catch((error) => {console.log(error);
+                res.status(400).json({ message: 'Impossible de modifier '})}
+              );
+          })
+        }else{
+          Post.updateOne( {_id: idPost}, {$set:{content: newContent}} )
             .then(() => {
               Post.findOne({_id: idPost }).then((postModified)=> res.status(200).json(postModified))
             })
             .catch((error) => {console.log(error);
               res.status(400).json({ message: 'Impossible de modifier '})}
             );
-        })
-      }else{
-        Post.updateOne( {_id: idPost}, {$set:{content: newContent}} )
-          .then(() => {
-            Post.findOne({_id: idPost }).then((postModified)=> res.status(200).json(postModified))
-          })
-          .catch((error) => {console.log(error);
-            res.status(400).json({ message: 'Impossible de modifier '})}
-          );
-      }
-    })
-    .catch((error) =>{console.log(error);
-      res.status(500).json({ error: "Une erreur s'est produite !" })}
-    );
+        }
+      })
+      .catch((error) =>{console.log(error);
+        res.status(500).json({ error: "Une erreur s'est produite !" })}
+      );
 }
 
 exports.deleteOnePost =(req, res, next) =>{
