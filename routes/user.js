@@ -10,7 +10,7 @@ router.post('/login',userCtrl.login);
 
 router.get('/myprofil/:userId',auth, userCtrl.UserProfile) 
 router.put('/myprofil/:userId',auth,multerConfig, userCtrl.UserModify)
-router.delete('/myprofil/:userId', auth, userCtrl.deleteUser)
+router.delete('/myprofil/:userId', auth,multerConfig, userCtrl.deleteUser)
 
 
 module.exports = router;
