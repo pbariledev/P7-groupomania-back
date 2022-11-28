@@ -2,6 +2,8 @@ const User =require ('../models/user')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const fs = require('fs')
+const Post = require('../models/Post');
+
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -99,6 +101,8 @@ exports.UserModify = (req, res) => {
     const newUserName= req.body.userName;
     const newEmail= req.body.email;
     const profilPicture = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+
+   
     User.findOne({_id: userId})
     .then(user => {
         const filenameDelete = user.imageUrl.split("/images/")[1];
@@ -117,6 +121,7 @@ exports.UserModify = (req, res) => {
 
   exports.deleteUser = (req, res) => {
     const userId = req.params.userId;
+    
     User.findOne({_id: userId})
         .then(user => {
             const filenameDelete = user.imageUrl.split("/images/")[1];
