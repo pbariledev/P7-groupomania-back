@@ -24,7 +24,6 @@ exports.signup = (req, res, next) => {
         return res.status(400).json({error:"Le mot de passe doit contenir entre 6 et 20 caractères",});
         }
     //vérification user existant
-    console.log(req)
     User.findOne({email: req.body.email}).then(userFound => {
      if (userFound){
          return res.status(400).json({ message: 'Un compte avec cette adresse mail existe déjà.' })
